@@ -1,4 +1,5 @@
 # STOP! Fill out blankconfig.py and rename it to config.py before running.
+# Takes a list of tuples from config.py and converts them to the host, user, and pw 
 
 import paramiko 
 from time import sleep
@@ -11,7 +12,8 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 def cisco_backup(cmd): 
     for X in config.CISCO_DEVICES:
         ssh.connect(X[0], username=X[1], password=X[2])
-        cmdtype = cmd.replace(' ', '.')
+        
+        cmdtype = cmd.replace(' ', '.') # Unnecessary but I prefer this naming convention
         path = f'{X[0]}.{cmdtype}.txt'
         backup_file = open(path, 'w+', newline='\n')
 
@@ -19,7 +21,7 @@ def cisco_backup(cmd):
 
         ssh_stdout = ssh_stdout.readlines()
 
-        sleep(1)
+        sleep(1) # Crappy old slower switches sometimes need a second to think
         ssh.close()
 
         for line in ssh_stdout:
