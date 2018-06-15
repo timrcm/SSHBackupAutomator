@@ -7,7 +7,20 @@ import config
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-def cisco_backup(cmd):
+class ssh_start(object):
+    def __init__(self):
+        self.devices = []
+
+    def __call__(self): 
+        for X in self.devices:
+            ssh.connect(X[0], username=X[1], password=X[2])
+
+class cisco_backup(ssh_start):
+    def __init__(self):
+        self.devices = config.CISCO_DEVICES
+
+
+def generic_command(cmd):
     for X in config.CISCO_DEVICES:
         ssh.connect(X[0], username=X[1], password=X[2])
         
@@ -28,9 +41,9 @@ def cisco_backup(cmd):
 
 def main():
     print("Starting backups...")
-    cisco_backup('show run')
-    cisco_backup('show ver')
-    cisco_backup('show flash')
+    generic_command('show run')
+    generic_command('show ver')
+    generic_command('show flash')
     print("All devices found in config completed.")
     exit(0)
 
