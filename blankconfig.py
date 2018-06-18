@@ -8,3 +8,7 @@ CISCO_DEVICES = [
     ('123.123.123.126', 'username', 'password'),
     ('123.123.123.127', 'username', 'password')
     ]
+
+APACHE_SERVERS = [
+    ('10.10.10.10', 'username', 'password')
+]
