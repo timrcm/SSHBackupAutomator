@@ -4,3 +4,4 @@ __pycache__/*
 *.show.run.txt
 *.show.ver.txt
 *.show.flash.txt
+*.tar.gz
