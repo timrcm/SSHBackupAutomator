@@ -32,6 +32,7 @@ def cisco_backup(cmd):
         backup_file = open(path, 'w+', newline='\n')
 
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+        sleep(5) # Give the device enough time to respond 
         ssh_stdout = ssh_stdout.readlines()
         ssh.close()
 
