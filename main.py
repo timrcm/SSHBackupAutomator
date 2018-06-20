@@ -48,14 +48,14 @@ def apache_backup():
 
         # Connect via SSH and zip the file
         ssh_connect(X)
-        ssh.exec_command(f'tar -zcvf ~/{X[0]}.tar.gz /var/www')
+        ssh.exec_command(f'tar -zcvf ~/{X[0]}.tar.gz {config.APACHE_DIRECTORY}')
         sleep(30) # Paramiko doesn't give the server enough time to finish zipping larger directories
 
         # Download the new zipped directory & delete it when done
-        ssh.exec_command(f'mv ~/{X[0]}.tar.gz /var/www/html/{X[0]}.tar.gz')
+        ssh.exec_command(f'mv ~/{X[0]}.tar.gz {config.APACHE_DIRECTORY}/{config.APACHE_HTML_ROOT_DIR}/{X[0]}.tar.gz')
         sleep(5)
         wget.download(f'http://{X[0]}/{X[0]}.tar.gz')
-        ssh.exec_command(f'rm /var/www/html/{X[0]}.tar.gz')
+        ssh.exec_command(f'rm {config.APACHE_DIRECTORY}/{config.APACHE_HTML_ROOT_DIR}/{X[0]}.tar.gz')
         ssh.close()
 
 

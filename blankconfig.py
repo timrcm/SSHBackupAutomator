@@ -12,3 +12,8 @@ CISCO_DEVICES = [
 APACHE_SERVERS = [
     ('10.10.10.10', 'username', 'password')
 ]
+
+# Change the default directory Apache is located in 
+# Do not include a trailing '/' 
+APACHE_DIRECTORY = "/var/www"
+APACHE_HTML_ROOT_DIR = "html"
