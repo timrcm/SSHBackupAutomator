@@ -1,4 +1,5 @@
 # Set the host, user, and passwords for each device
+# Enter ASK for the password to always be prompted for it 
 # Add more devices as needed
 
 CISCO_DEVICES = [
