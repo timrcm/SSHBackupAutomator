@@ -1,6 +1,10 @@
-# STOP! Fill out blankconfig.py and rename it to config.py before running.
+# SSHBackupAutomator
+# Python 3.7
+# Fill out blankconfig.py and rename it to config.py before running.
 
+import asyncio
 from time import sleep
+
 import paramiko
 import wget
 
@@ -77,8 +81,8 @@ class start(object):
             wget.download(f'http://{X[0]}/{X[0]}.tar.gz')
             ssh.exec_command(f'rm {config.APACHE_DIRECTORY}/{config.APACHE_HTML_ROOT_DIR}/{X[0]}.tar.gz')
             ssh.close()
-    
-            
+
+
 def main():
     print("Starting backups...")
     start(config.CISCO_DEVICES, 'cisco')
