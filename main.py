@@ -2,7 +2,7 @@
 # Python 3.7
 # Fill out blankconfig.py and rename it to config.py before running.
 
-import asyncio
+# import asyncio
 from time import sleep
 
 import paramiko
@@ -36,6 +36,8 @@ class start(object):
 
 
     def ssh_conn(self, X):
+        self.conn_established = 0
+
         if X[2] == 'ASK':
             X = (X[0]), (X[1]), (input(f"Enter the password for {X[0]}: "))
 
@@ -45,24 +47,29 @@ class start(object):
             print(f"Failed to authenticate to {X[0]}")
         except:
             print(f"Unknown failure when connecting to {X[0]}")
+        else: 
+            self.conn_established = 1
 
 
     def cisco_backup(self, cmd):
         for X in self.devices:
             self.ssh_conn(X)
 
-            cmdtype = cmd.replace(' ', '.') # Unnecessary but I prefer this naming convention
-            path = f'{X[0]}.{cmdtype}.txt'
-            backup_file = open(path, 'w+', newline='\n')
+            if self.conn_established == 1:
+                cmdtype = cmd.replace(' ', '.') # Unnecessary but I prefer this naming convention
+                path = f'{X[0]}.{cmdtype}.txt'
+                backup_file = open(path, 'w+', newline='\n')
 
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
-            sleep(5) # Give the device enough time to respond 
-            ssh_stdout = ssh_stdout.readlines()
-            ssh.close()
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+                sleep(5) # Give the device enough time to respond 
+                ssh_stdout = ssh_stdout.readlines()
+                ssh.close()
 
-            for line in ssh_stdout:
-                backup_file.write(line)
-            print(f"{path} created.")
+                for line in ssh_stdout:
+                    backup_file.write(line)
+                print(f"{path} created.")
+            else:
+                print(f"Unable to continue with backup of {X[0]}")
 
 
     def apache_backup(self):
@@ -71,16 +78,24 @@ class start(object):
             to make paramiko's sftp transport work correctly'''
         for X in self.devices:
             # Connect via SSH and zip the file
-            self.ssh_conn(X)
-            ssh.exec_command(f'tar -zcvf ~/{X[0]}.tar.gz {config.APACHE_DIRECTORY}')
-            sleep(30) # Paramiko doesn't give the server enough time to finish zipping larger directories
+            try:
+                self.ssh_conn(X)
 
-            # Download the new zipped directory & delete it when done
-            ssh.exec_command(f'mv ~/{X[0]}.tar.gz {config.APACHE_DIRECTORY}/{config.APACHE_HTML_ROOT_DIR}/{X[0]}.tar.gz')
-            sleep(5)
-            wget.download(f'http://{X[0]}/{X[0]}.tar.gz')
-            ssh.exec_command(f'rm {config.APACHE_DIRECTORY}/{config.APACHE_HTML_ROOT_DIR}/{X[0]}.tar.gz')
-            ssh.close()
+                if self.conn_established == 1:
+                    ssh.exec_command(f'tar -zcvf ~/{X[0]}.tar.gz {config.APACHE_DIRECTORY}')
+                    sleep(30) # Paramiko doesn't give the server enough time to finish zipping larger directories
+
+                    # Download the new zipped directory & delete it when done
+                    ssh.exec_command(f'mv ~/{X[0]}.tar.gz {config.APACHE_DIRECTORY}/{config.APACHE_HTML_ROOT_DIR}/{X[0]}.tar.gz')
+                    sleep(5)
+                    wget.download(f'http://{X[0]}/{X[0]}.tar.gz')
+                    ssh.exec_command(f'rm {config.APACHE_DIRECTORY}/{config.APACHE_HTML_ROOT_DIR}/{X[0]}.tar.gz')
+                    ssh.close()
+                else:
+                    print("Unable to continue with Apache backup")
+
+            except:
+                print("Unable to continue with Apache backup")
 
 
 def main():
