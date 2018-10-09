@@ -10,6 +10,10 @@ CISCO_DEVICES = [
     ('123.123.123.127', 'username', 'password')
     ]
 
+BROCADE_DEVICES = [
+    ('123.123.123.123', 'username', 'password')
+]
+
 APACHE_SERVERS = [
     ('10.10.10.10', 'username', 'password')
 ]

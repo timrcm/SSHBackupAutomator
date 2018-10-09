@@ -24,6 +24,9 @@ class start(object):
             self.cisco_backup('show run')
             self.cisco_backup('show ver')
             self.cisco_backup('show flash')
+        elif self.devicetype == "brocade":
+            self.brocade_backup('show run')
+            self.brocade_backup('show ver')
         elif self.devicetype == "apache":
             self.apache_backup()
         else:
@@ -50,6 +53,30 @@ class start(object):
         else: 
             self.conn_established = 1
 
+    def brocade_backup(self, cmd):
+        '''ssh.exec_command doesn't play nicely with brocade, what else will?'''
+        for X in self.devices:
+            self.ssh_conn(X)
+
+            if self.conn_established == 1:
+                cmdtype = cmd.replace(' ', '.') # Unnecessary but I prefer this naming convention
+                path = f'{X[0]}.{cmdtype}.txt'
+                backup_file = open(path, 'w+', newline='\n')
+
+                channel = ssh.invoke_shell()
+                output = channel.recv(20000)
+                channel.send('terminal length 0')
+                channel.send(cmd)
+                # sleep(10) # Give the device enough time to respond 
+                
+                print(output)
+                ssh.close()
+
+            #     for line in output:
+            #         backup_file.write(line)
+            #     print(f"{path} created.")
+            # else:
+            #     print(f"Unable to continue with backup of {X[0]}")
 
     def cisco_backup(self, cmd):
         for X in self.devices:
@@ -59,9 +86,9 @@ class start(object):
                 cmdtype = cmd.replace(' ', '.') # Unnecessary but I prefer this naming convention
                 path = f'{X[0]}.{cmdtype}.txt'
                 backup_file = open(path, 'w+', newline='\n')
-
+                # ssh.exec_command('terminal length 0')
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
-                sleep(5) # Give the device enough time to respond 
+                sleep(10) # Give the device enough time to respond 
                 ssh_stdout = ssh_stdout.readlines()
                 ssh.close()
 
@@ -101,7 +128,8 @@ class start(object):
 def main():
     print("Starting backups...")
     start(config.CISCO_DEVICES, 'cisco')
-    start(config.APACHE_SERVERS, 'apache')
+    # start(config.BROCADE_DEVICES, 'brocade')
+    # start(config.APACHE_SERVERS, 'apache')
     print("\n Done.")
     exit(0)
 
